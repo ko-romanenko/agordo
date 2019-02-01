@@ -1,11 +1,5 @@
 pipeline {
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
-        disableConcurrentBuilds()
-    }
-    agent {
-        node any
-    }
+    agent any
     parameters {
         booleanParam(name: 'MAKE_RELEASE', defaultValue: false, description: 'Do you want to perform release?')
         string(name: 'RELEASE_VERSION', defaultValue: "1.0", description: 'Version that you want to release. This option make sense only if MAKE_RELEASE is checked')
