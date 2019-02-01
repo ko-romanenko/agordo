@@ -4,7 +4,7 @@ pipeline {
         disableConcurrentBuilds()
     }
     agent {
-        node { label 'H1totsu' }
+        node any
     }
     parameters {
         booleanParam(name: 'MAKE_RELEASE', defaultValue: false, description: 'Do you want to perform release?')
