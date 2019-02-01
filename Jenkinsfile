@@ -31,16 +31,28 @@ pipeline {
             steps {
                 sh "./gradlew clean build"
             }
-            post {
-                always {
-                    script {
-                        if (currentBuild.currentResult == "SUCCESS") {
-                            bitbucketStatusNotify(buildState: 'SUCCESSFUL', repoSlug: env.SERVICE_NAME)
-                        } else {
-                            bitbucketStatusNotify(buildState: 'FAILED', repoSlug: env.SERVICE_NAME)
+        }
+        stage('Build Docker image') {
+            when { expression { return params.MAKE_RELEASE || env.GIT_COMMIT != env.GIT_PREVIOUS_SUCCESSFUL_COMMIT } }
+            steps {
+                script {
+                    retry(2) {
+                        ansiColor('xterm') {
+                            def IMAGE_TAG = ${env.SERVICE_VERSION}
+                            env.DOCKER_IMAGE = docker.build("https://hub.docker.com/u/devh1totsu/${env.SERVICE_NAME}:${IMAGE_TAG}").id
                         }
                     }
-                    archiveArtifacts artifacts: 'build/libs/**/*.jar'
+                }
+            }
+        }
+        stage('Push image to Docker Registry') {
+            when { expression { return env.BRANCH_NAME == env.MAIN_BRANCH && (params.MAKE_RELEASE || env.GIT_COMMIT != env.GIT_PREVIOUS_SUCCESSFUL_COMMIT) } }
+            steps {
+                script {
+                    ansiColor('xterm') {
+                        def image = docker.image(env.DOCKER_IMAGE)
+                        image.push()
+                    }
                 }
             }
         }
