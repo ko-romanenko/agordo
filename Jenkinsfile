@@ -39,7 +39,7 @@ pipeline {
                     retry(2) {
                         ansiColor('xterm') {
                             def IMAGE_TAG = "${env.SERVICE_VERSION}"
-                            env.DOCKER_IMAGE = docker.build("${env.SERVICE_NAME}:${IMAGE_TAG}").id
+                            env.DOCKER_IMAGE = docker.build("${env.SERVICE_NAME}:${IMAGE_TAG}")
                         }
                     }
                 }
